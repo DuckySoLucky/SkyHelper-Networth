@@ -11,7 +11,22 @@ const calculateNetworth = (items, purseBalance, bankBalance, prices, onlyNetwort
     // Calculate networth for each category
     categories[category] = { total: 0, unsoulboundTotal: 0, items: [] };
 
-    for (const item of categoryItems) {
+    let formattedCategoryItems = categoryItems;
+    if (['pets', 'sacks', 'essence'].includes(category) === false) {
+        formattedCategoryItems = categoryItems.reduce((acc, item) => {
+            const tagString = JSON.stringify(item.tag);
+            const existingItemIndex = acc.findIndex((accItem) => JSON.stringify(accItem.tag) === tagString);
+
+            if (existingItemIndex !== -1) {
+                acc[existingItemIndex].Count += item.Count ?? 1;
+            } else {
+                acc.push({ ...item, Count: item.Count ?? 1 });
+            }
+            return acc;
+        }, []);
+    }
+
+    for (const item of formattedCategoryItems) {
       const result =
         category === 'pets'
           ? calculatePet(item, prices)
